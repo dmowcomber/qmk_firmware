@@ -22,19 +22,30 @@
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 	[BASE] = LAYOUT(
-		KC_7, KC_8, KC_9,
+		KC_BRIGHTNESS_DOWN, KC_BRIGHTNESS_UP, KC_9,
 		KC_4, KC_5, KC_6,
-		KC_1, KC_2, KC_3,
-		MO(1), KC_0, KC_DOT
+		KC_1, KC_1, KC_1,
+		MO(1), KC_0, MO(1)
 	),
 
 	[FN] = LAYOUT(
-		KC_TRNS, KC_HOME, KC_PGUP,
-		KC_TRNS, KC_END, KC_PGDN,
-		KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_TRNS, KC_ENT
+		RGB_MODE_FORWARD, KC_HOME, RGB_TOG,
+		RGB_MODE_REVERSE, KC_END, KC_PGDN,
+		KC_TRNS,          KC_TRNS, KC_TRNS,
+		KC_TRNS,          KC_TRNS, KC_ENT
 	)
 };
+
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    if (index == 0) { /* First encoder */
+        if (!clockwise) {
+            tap_code_delay(KC_AUDIO_VOL_UP, 10);
+        } else {
+            tap_code_delay(KC_AUDIO_VOL_DOWN, 10);
+        }
+    }
+    return false;
+}
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
@@ -43,7 +54,11 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 
 bool oled_task_user(void) {
   // Host Keyboard Layer Status
-  oled_write_P(PSTR("Let's\nbuild\nsome-\nthing\nto-\nget-\nher!"), false);
+  oled_write_P(PSTR("We\nare\nGroot\n"), false);
+
+  oled_write_P(PSTR("timer: "), false);
+  oled_write(get_u8_str(timer_read()/100, '0'), false);
+
   switch (get_highest_layer(layer_state)) {
     case BASE:
       oled_write_ln_P(PSTR(""), false);
